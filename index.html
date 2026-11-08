@@ -31,7 +31,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1
 <div class="field"><label>Ritmo</label><input id="pPac" type="number" min="1" max="99"></div><div class="field"><label>Tiro</label><input id="pSho" type="number" min="1" max="99"></div><div class="field"><label>Pase</label><input id="pPas" type="number" min="1" max="99"></div>
 <div class="field"><label>Regate</label><input id="pDri" type="number" min="1" max="99"></div><div class="field"><label>Defensa</label><input id="pDef" type="number" min="1" max="99"></div><div class="field"><label>Físico</label><input id="pPhy" type="number" min="1" max="99"></div>
 <div class="field"><label>Valor de mercado (millones €)</label><input id="pValue" type="number" min="0" step="0.1" placeholder="Ej. 10 = €10m"></div><div class="field"><label>Precio estimado (millones €)</label><input id="pPrice" type="number" min="0" step="0.1" placeholder="Ej. 12.5 = €12,5m"></div><div class="field"><label>Salario semanal (miles €)</label><input id="pWage" type="number" min="0" step="1" placeholder="Ej. 45 = €45.000"></div>
-<div class="field"><label>Estado del informe</label><select id="pStatus"><option>Observación</option><option>Preseleccionado</option><option>Finalista</option><option>Descartado</option></select></div><div class="field"><label>Rol / perfil</label><input id="pRole" placeholder="Ej. Extremo inverso"></div><div class="field"><label>Pie hábil</label><select id="pFoot"><option value="">No indicado</option><option>Derecho</option><option>Izquierdo</option></select></div>
+<div class="field"><label>Estado del informe</label><select id="pStatus"><option>Observación</option><option>Preseleccionado</option><option>Finalista</option><option>Descartado</option></select></div><div class="field"><label>Rol / perfil táctico</label><select id="pRole"><option value="">Selecciona primero una posición</option></select></div><div class="field"><label>Pie hábil</label><select id="pFoot"><option value="">No indicado</option><option>Derecho</option><option>Izquierdo</option></select></div>
 <div class="field span3"><label>Informe del scout / observaciones</label><textarea id="pNotes" placeholder="Fortalezas, debilidades, encaje táctico, dudas por verificar..."></textarea></div>
 </div><div class="form-actions"><button type="button" class="btn" id="cancelEdit2">Cancelar</button><button class="btn primary" type="submit">Guardar informe</button></div><p class="notice">Los atributos sin registrar no se consideran como cero: la evaluación se calcula solo con datos disponibles.</p></form></section>
 <footer class="footer">FC26 Scout Manager · Versión inicial · Datos almacenados localmente en tu dispositivo</footer>
@@ -65,6 +65,23 @@ const positionProfiles={
   'EI':{pac:25,sho:20,pas:15,dri:25,def:5,phy:5},
   'DC':{pac:20,sho:35,pas:10,dri:15,def:0,phy:15}
 };
+const roleOptions={
+'POR':['Portero líbero','Portero tradicional'],'DFC':['Central corrector','Central contundente','Central con salida'],
+'LD':['Lateral ofensivo','Lateral equilibrado','Lateral defensivo'],'LI':['Lateral ofensivo','Lateral equilibrado','Lateral defensivo'],
+'MCD':['Pivote defensivo','Organizador retrasado','Recuperador'],'MC':['Organizador','Todocampista','Centrocampista mixto'],
+'MD':['Extremo de banda','Interior de banda','Volante trabajador'],'MI':['Extremo de banda','Interior de banda','Volante trabajador'],
+'MCO':['Mediapunta creativo','Mediapunta llegador','Enganche'],'ED':['Extremo clásico','Extremo inverso','Extremo creativo'],
+'EI':['Extremo clásico','Extremo inverso','Extremo creativo'],'DC':['Delantero avanzado','Delantero objetivo','Segundo delantero']};
+const roleProfiles={
+'Portero líbero':{pac:10,pas:30,def:35,phy:25},'Portero tradicional':{pas:10,def:50,phy:40},
+'Central corrector':{pac:25,def:40,phy:25,pas:10},'Central contundente':{pac:5,def:45,phy:40,pas:10},'Central con salida':{pac:10,def:35,phy:20,pas:35},
+'Lateral ofensivo':{pac:25,pas:20,dri:25,def:15,phy:15},'Lateral equilibrado':{pac:20,pas:15,dri:15,def:25,phy:25},'Lateral defensivo':{pac:10,pas:10,dri:5,def:40,phy:35},
+'Pivote defensivo':{pas:20,dri:5,def:40,phy:35},'Organizador retrasado':{pas:40,dri:20,def:20,phy:20},'Recuperador':{pac:10,pas:10,def:45,phy:35},
+'Organizador':{pas:35,dri:25,def:15,sho:10,phy:10,pac:5},'Todocampista':{pac:15,sho:15,pas:20,dri:15,def:15,phy:20},'Centrocampista mixto':{pac:10,sho:10,pas:25,dri:15,def:20,phy:20},
+'Extremo de banda':{pac:25,dri:25,pas:20,sho:15,phy:10,def:5},'Interior de banda':{pac:15,dri:20,pas:25,sho:15,def:10,phy:15},'Volante trabajador':{pac:15,dri:15,pas:20,sho:10,def:20,phy:20},
+'Mediapunta creativo':{pas:30,dri:30,sho:20,pac:10,phy:5,def:5},'Mediapunta llegador':{sho:30,pas:20,dri:20,pac:15,phy:10,def:5},'Enganche':{pas:40,dri:30,sho:15,pac:5,phy:5,def:5},
+'Extremo clásico':{pac:30,dri:25,pas:20,sho:10,phy:10,def:5},'Extremo inverso':{sho:25,dri:30,pac:20,pas:15,phy:5,def:5},'Extremo creativo':{dri:25,pas:30,pac:15,sho:15,phy:5,def:10},
+'Delantero avanzado':{sho:35,pac:25,dri:15,phy:15,pas:10},'Delantero objetivo':{sho:30,phy:30,pas:15,pac:10,dri:10,def:5},'Segundo delantero':{sho:25,pas:20,dri:25,pac:15,phy:10,def:5}};
 const goalWeights={
  'Titular inmediato':{current:45,attributes:30,financial:15,potential:5,age:5},
  'Rotación':{current:35,attributes:25,financial:15,potential:15,age:10},
@@ -74,7 +91,8 @@ const goalWeights={
 };
 function ageScore(age){return age<=20?95:age<=23?85:age<=26?70:age<=29?55:35}
 function evaluate(p,goal='Titular inmediato'){
- const profile=positionProfiles[p.pos]||positionProfiles['MC'];
+ const baseProfile=positionProfiles[p.pos]||positionProfiles['MC'];
+ const profile=roleProfiles[p.role]||baseProfile;
  const attrKeys=Object.keys(profile).filter(k=>profile[k]>0&&p[k]!=null);
  const attrWeight=attrKeys.reduce((s,k)=>s+profile[k],0);
  const attributes=attrWeight?attrKeys.reduce((s,k)=>s+p[k]*profile[k],0)/attrWeight:null;
@@ -98,7 +116,9 @@ function toast(t){const el=document.getElementById('toast');el.textContent=t;el.
 function switchView(v){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='compare')fillCompare()}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>switchView(b.dataset.goto));
-function openEditor(p){document.getElementById('playerForm').reset();document.getElementById('playerId').value=p?.id||'';document.getElementById('editorTitle').textContent=p?'Editar informe':'Nuevo informe de scouting';const map={pName:'name',pAge:'age',pOvr:'ovr',pPot:'pot',pPos:'pos',pAlt:'alt',pPac:'pac',pSho:'sho',pPas:'pas',pDri:'dri',pDef:'def',pPhy:'phy',pValue:'value',pPrice:'price',pWage:'wage',pStatus:'status',pRole:'role',pFoot:'foot',pNotes:'notes'};if(p)for(const [id,k] of Object.entries(map)){let v=p[k]??'';if(k==='value'||k==='price')v=displayMillions(v);if(k==='wage')v=displayThousands(v);document.getElementById(id).value=v;}else document.getElementById('pStatus').value='Observación';switchView('editor')}
+function updateRoleOptions(selected=''){const pos=document.getElementById('pPos').value,el=document.getElementById('pRole');const opts=roleOptions[pos]||[];el.innerHTML='<option value="">Seleccionar rol</option>'+opts.map(r=>'<option>'+r+'</option>').join('')+(selected&&!opts.includes(selected)?'<option>'+esc(selected)+'</option>':'');el.value=selected||''}
+document.getElementById('pPos').addEventListener('change',()=>updateRoleOptions());
+function openEditor(p){document.getElementById('playerForm').reset();document.getElementById('playerId').value=p?.id||'';document.getElementById('editorTitle').textContent=p?'Editar informe':'Nuevo informe de scouting';const map={pName:'name',pAge:'age',pOvr:'ovr',pPot:'pot',pPos:'pos',pAlt:'alt',pPac:'pac',pSho:'sho',pPas:'pas',pDri:'dri',pDef:'def',pPhy:'phy',pValue:'value',pPrice:'price',pWage:'wage',pStatus:'status',pRole:'role',pFoot:'foot',pNotes:'notes'};if(p)for(const [id,k] of Object.entries(map)){let v=p[k]??'';if(k==='value'||k==='price')v=displayMillions(v);if(k==='wage')v=displayThousands(v);if(id!=='pRole')document.getElementById(id).value=v;}else document.getElementById('pStatus').value='Observación';updateRoleOptions(p?.role||'');switchView('editor')}
 ['newPlayerBtn','newPlayerBtn2'].forEach(id=>document.getElementById(id).onclick=()=>openEditor());
 ['cancelEdit','cancelEdit2'].forEach(id=>document.getElementById(id).onclick=()=>switchView('players'));
 document.getElementById('playerForm').onsubmit=e=>{e.preventDefault();const id=document.getElementById('playerId').value;const p={id:id||crypto.randomUUID(),name:document.getElementById('pName').value.trim(),age:num('pAge'),ovr:num('pOvr'),pot:num('pPot'),pos:document.getElementById('pPos').value,alt:document.getElementById('pAlt').value,pac:num('pPac'),sho:num('pSho'),pas:num('pPas'),dri:num('pDri'),def:num('pDef'),phy:num('pPhy'),value:inputMillions('pValue'),price:inputMillions('pPrice'),wage:inputThousands('pWage'),status:document.getElementById('pStatus').value,role:document.getElementById('pRole').value,foot:document.getElementById('pFoot').value,notes:document.getElementById('pNotes').value,updated:new Date().toISOString()};const i=db.players.findIndex(x=>x.id===p.id);if(i>=0)db.players[i]=p;else db.players.unshift(p);persist();switchView('players');toast('Informe guardado correctamente')}
